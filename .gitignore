@@ -1,0 +1,21 @@
+*.iml
+.gradle/
+.kotlin/
+/local.properties
+local.properties
+.idea/
+.DS_Store
+Thumbs.db
+build/
+**/build/
+/captures
+.externalNativeBuild
+.cxx
+
+# Firebase — must never be committed (contains project credentials)
+google-services.json
+
+# Signing & Keystores
+*.jks
+*.keystore
+keystore.properties

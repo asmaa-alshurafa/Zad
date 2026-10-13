@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">Zad</string>
+    <string name="app_name_ar">زاد</string>
+    <string name="app_tagline">سوق الكتب الجامعية المستعملة</string>
+    <string name="university_audience">الكلية الجامعية للعلوم التطبيقية — UCAS</string>
+    <string name="search_books_placeholder">ابحث عن عنوان كتاب، تخصص، أو مؤلف…</string>
+    <string name="filter_all">الكل</string>
+    <string name="filter_sale">معروض للبيع</string>
+    <string name="filter_donation">إهداء مجاني</string>
+    <string name="empty_listings_title">لا توجد كتب دراسية معروضة بعد</string>
+    <string name="empty_listings_subtitle">كن أول من يشارك كتاباً جامعياً ويسهّل على زملائه الطلاب الحصول على المراجع والمقررات الدراسية.</string>
+    <string name="empty_search_title">لا توجد نتائج مطابقة</string>
+    <string name="empty_search_subtitle">جرّب تغيير كلمات البحث أو اختيار فلتر آخر.</string>
+    <string name="add_book_action">أضف كتاباً جديداً</string>
+    <string name="clear_search">مسح</string>
+    <string name="add_book_fab_description">إضافة كتاب جديد</string>
+
+    <!-- Add Book Screen -->
+    <string name="add_book_screen_title">إضافة كتاب جديد</string>
+    <string name="field_title_label">عنوان الكتاب *</string>
+    <string name="field_title_placeholder">مثال: أساسيات قواعد البيانات</string>
+    <string name="field_author_label">المؤلف (اختياري)</string>
+    <string name="field_author_placeholder">اسم المؤلف</string>
+    <string name="field_major_label">التخصص الأكاديمي *</string>
+    <string name="field_major_placeholder">مثال: تكنولوجيا المعلومات، تمريض، محاسبة</string>
+    <string name="field_course_label">اسم المساق أو رمزه (اختياري)</string>
+    <string name="field_course_placeholder">مثال: CS101 أو برمجة 1</string>
+    <string name="field_condition_label">حالة الكتاب *</string>
+    <string name="field_listing_type_label">نوع العرض *</string>
+    <string name="field_price_label">السعر (بالشيقل ₪) *</string>
+    <string name="field_price_placeholder">مثال: 20</string>
+    <string name="field_description_label">وصف إضافي أو ملاحظات (اختياري)</string>
+    <string name="field_description_placeholder">حالة الصفحات، وجود تظليلات، رقم الطبعة…</string>
+    <string name="field_contact_label">معلومات التواصل (جوال أو واتساب) *</string>
+    <string name="field_contact_placeholder">059XXXXXXX أو 056XXXXXXX</string>
+    <string name="field_contact_helper">سيظهر هذا الرقم للطلاب المهتمين للتواصل معك مباشرة.</string>
+    <string name="action_save_book">نشر الكتاب</string>
+    <string name="action_cancel">إلغاء</string>
+    <string name="validation_title_required">يرجى كتابة عنوان الكتاب</string>
+    <string name="validation_major_required">يرجى كتابة التخصص الأكاديمي</string>
+    <string name="validation_price_invalid">يرجى إدخال سعر صحيح أكبر من الصفر</string>
+    <string name="validation_contact_required">يرجى إدخال وسيلة تواصل للاتصال بك</string>
+
+    <!-- Conditions -->
+    <string name="condition_new">جديد</string>
+    <string name="condition_very_good">ممتاز (شبه جديد)</string>
+    <string name="condition_good">جيد</string>
+    <string name="condition_acceptable">مقبول</string>
+
+    <!-- Book Details Screen -->
+    <string name="book_details_title">تفاصيل الكتاب</string>
+    <string name="label_major">التخصص:</string>
+    <string name="label_course">المساق:</string>
+    <string name="label_author">المؤلف:</string>
+    <string name="label_condition">حالة الكتاب:</string>
+    <string name="label_description">الوصف والملاحظات:</string>
+    <string name="label_seller_contact">معلومات التواصل مع صاحب الكتاب</string>
+    <string name="contact_seller_hint">تواصل مع المعلن مباشرة عبر الاتصال الهاتفي أو تطبيق واتساب للاتفاق على الاستلام.</string>
+    <string name="book_not_found_title">لم يتم العثور على الكتاب</string>
+    <string name="book_not_found_message">قد يكون الكتاب قد أُزيل أو أن الرابط غير صحيح.</string>
+    <string name="action_back_home">العودة للرئيسية</string>
+    <string name="back_navigation">رجوع</string>
+</resources>
