@@ -1,6 +1,7 @@
 package com.example.zad.feature.addbook
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,21 +12,28 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,7 +54,7 @@ import com.example.zad.ui.theme.ZadTheme
 import java.util.UUID
 
 /**
- * Screen for adding a new university textbook listing in Zad.
+ * Screen for listing a university textbook in Zad.
  *
  * Implements strict validation:
  * - Title, major, condition, and contact info are required.
@@ -107,24 +115,37 @@ fun AddBookScreen(
         }
     }
 
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedContainerColor = MaterialTheme.colorScheme.surface,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+        focusedBorderColor = MaterialTheme.colorScheme.primary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+    )
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = stringResource(R.string.add_book_screen_title),
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back_navigation)
+                            contentDescription = stringResource(R.string.back_navigation),
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             )
         }
     ) { contentPadding ->
@@ -133,178 +154,273 @@ fun AddBookScreen(
                 .fillMaxSize()
                 .padding(contentPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Book Title (Required)
-            OutlinedTextField(
-                value = title,
-                onValueChange = {
-                    title = it
-                    if (titleError && it.isNotBlank()) titleError = false
-                },
-                label = { Text(stringResource(R.string.field_title_label)) },
-                placeholder = { Text(stringResource(R.string.field_title_placeholder)) },
-                isError = titleError,
-                supportingText = if (titleError) {
-                    { Text(stringResource(R.string.validation_title_required)) }
-                } else null,
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            // Author (Optional)
-            OutlinedTextField(
-                value = author,
-                onValueChange = { author = it },
-                label = { Text(stringResource(R.string.field_author_label)) },
-                placeholder = { Text(stringResource(R.string.field_author_placeholder)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            // Academic Major (Required)
-            OutlinedTextField(
-                value = major,
-                onValueChange = {
-                    major = it
-                    if (majorError && it.isNotBlank()) majorError = false
-                },
-                label = { Text(stringResource(R.string.field_major_label)) },
-                placeholder = { Text(stringResource(R.string.field_major_placeholder)) },
-                isError = majorError,
-                supportingText = if (majorError) {
-                    { Text(stringResource(R.string.validation_major_required)) }
-                } else null,
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            // Course Name (Optional)
-            OutlinedTextField(
-                value = courseName,
-                onValueChange = { courseName = it },
-                label = { Text(stringResource(R.string.field_course_label)) },
-                placeholder = { Text(stringResource(R.string.field_course_placeholder)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            // Listing Type Selection (Sale vs Donation)
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = stringResource(R.string.field_listing_type_label),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(
-                        selected = listingType == ListingType.SALE,
-                        onClick = { listingType = ListingType.SALE },
-                        label = { Text(stringResource(R.string.filter_sale)) }
-                    )
-                    FilterChip(
-                        selected = listingType == ListingType.DONATION,
-                        onClick = {
-                            listingType = ListingType.DONATION
-                            priceText = ""
-                            priceError = false
-                        },
-                        label = { Text(stringResource(R.string.filter_donation)) }
-                    )
-                }
-            }
-
-            // Price Field (Visible only if SALE)
-            AnimatedVisibility(visible = listingType == ListingType.SALE) {
-                OutlinedTextField(
-                    value = priceText,
-                    onValueChange = {
-                        priceText = it
-                        if (priceError) priceError = false
-                    },
-                    label = { Text(stringResource(R.string.field_price_label)) },
-                    placeholder = { Text(stringResource(R.string.field_price_placeholder)) },
-                    isError = priceError,
-                    supportingText = if (priceError) {
-                        { Text(stringResource(R.string.validation_price_invalid)) }
-                    } else null,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-            }
-
-            // Book Condition Selection
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = stringResource(R.string.field_condition_label),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Row(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    FilterChip(
-                        selected = condition == BookCondition.NEW,
-                        onClick = { condition = BookCondition.NEW },
-                        label = { Text(stringResource(R.string.condition_new)) }
+                    // Book Title (Required)
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = {
+                            title = it
+                            if (titleError && it.isNotBlank()) titleError = false
+                        },
+                        label = { Text(stringResource(R.string.field_title_label)) },
+                        placeholder = { Text(stringResource(R.string.field_title_placeholder)) },
+                        isError = titleError,
+                        supportingText = if (titleError) {
+                            { Text(stringResource(R.string.validation_title_required)) }
+                        } else null,
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = textFieldColors
                     )
-                    FilterChip(
-                        selected = condition == BookCondition.VERY_GOOD,
-                        onClick = { condition = BookCondition.VERY_GOOD },
-                        label = { Text(stringResource(R.string.condition_very_good)) }
+
+                    // Author (Optional)
+                    OutlinedTextField(
+                        value = author,
+                        onValueChange = { author = it },
+                        label = { Text(stringResource(R.string.field_author_label)) },
+                        placeholder = { Text(stringResource(R.string.field_author_placeholder)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = textFieldColors
                     )
-                    FilterChip(
-                        selected = condition == BookCondition.GOOD,
-                        onClick = { condition = BookCondition.GOOD },
-                        label = { Text(stringResource(R.string.condition_good)) }
+
+                    // Academic Major (Required)
+                    OutlinedTextField(
+                        value = major,
+                        onValueChange = {
+                            major = it
+                            if (majorError && it.isNotBlank()) majorError = false
+                        },
+                        label = { Text(stringResource(R.string.field_major_label)) },
+                        placeholder = { Text(stringResource(R.string.field_major_placeholder)) },
+                        isError = majorError,
+                        supportingText = if (majorError) {
+                            { Text(stringResource(R.string.validation_major_required)) }
+                        } else null,
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = textFieldColors
                     )
-                    FilterChip(
-                        selected = condition == BookCondition.ACCEPTABLE,
-                        onClick = { condition = BookCondition.ACCEPTABLE },
-                        label = { Text(stringResource(R.string.condition_acceptable)) }
+
+                    // Course Name (Optional)
+                    OutlinedTextField(
+                        value = courseName,
+                        onValueChange = { courseName = it },
+                        label = { Text(stringResource(R.string.field_course_label)) },
+                        placeholder = { Text(stringResource(R.string.field_course_placeholder)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = textFieldColors
                     )
                 }
             }
 
-            // Description / Notes (Optional)
-            OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = { Text(stringResource(R.string.field_description_label)) },
-                placeholder = { Text(stringResource(R.string.field_description_placeholder)) },
+            // Listing Type & Price Card
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 3,
-                maxLines = 5
-            )
-
-            // Contact Info (Required)
-            OutlinedTextField(
-                value = contactInfo,
-                onValueChange = {
-                    contactInfo = it
-                    if (contactError && it.isNotBlank()) contactError = false
-                },
-                label = { Text(stringResource(R.string.field_contact_label)) },
-                placeholder = { Text(stringResource(R.string.field_contact_placeholder)) },
-                supportingText = {
-                    if (contactError) {
-                        Text(stringResource(R.string.validation_contact_required))
-                    } else {
-                        Text(stringResource(R.string.field_contact_helper))
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.field_listing_type_label),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = listingType == ListingType.SALE,
+                            onClick = { listingType = ListingType.SALE },
+                            label = { Text(stringResource(R.string.filter_sale)) },
+                            shape = RoundedCornerShape(8.dp),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        )
+                        FilterChip(
+                            selected = listingType == ListingType.DONATION,
+                            onClick = {
+                                listingType = ListingType.DONATION
+                                priceText = ""
+                                priceError = false
+                            },
+                            label = { Text(stringResource(R.string.listing_type_donation)) },
+                            shape = RoundedCornerShape(8.dp),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                        )
                     }
-                },
-                isError = contactError,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                    // Price Field (Visible only if SALE)
+                    AnimatedVisibility(visible = listingType == ListingType.SALE) {
+                        OutlinedTextField(
+                            value = priceText,
+                            onValueChange = {
+                                priceText = it
+                                if (priceError) priceError = false
+                            },
+                            label = { Text(stringResource(R.string.field_price_label)) },
+                            placeholder = { Text(stringResource(R.string.field_price_placeholder)) },
+                            isError = priceError,
+                            supportingText = if (priceError) {
+                                { Text(stringResource(R.string.validation_price_invalid)) }
+                            } else null,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            shape = RoundedCornerShape(10.dp),
+                            colors = textFieldColors
+                        )
+                    }
+                }
+            }
+
+            // Condition Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.field_condition_label),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        FilterChip(
+                            selected = condition == BookCondition.NEW,
+                            onClick = { condition = BookCondition.NEW },
+                            label = { Text(stringResource(R.string.condition_new)) },
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        FilterChip(
+                            selected = condition == BookCondition.VERY_GOOD,
+                            onClick = { condition = BookCondition.VERY_GOOD },
+                            label = { Text(stringResource(R.string.condition_very_good)) },
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        FilterChip(
+                            selected = condition == BookCondition.GOOD,
+                            onClick = { condition = BookCondition.GOOD },
+                            label = { Text(stringResource(R.string.condition_good)) },
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        FilterChip(
+                            selected = condition == BookCondition.ACCEPTABLE,
+                            onClick = { condition = BookCondition.ACCEPTABLE },
+                            label = { Text(stringResource(R.string.condition_acceptable)) },
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                    }
+                }
+            }
+
+            // Description & Contact Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    // Description / Notes (Optional)
+                    OutlinedTextField(
+                        value = description,
+                        onValueChange = { description = it },
+                        label = { Text(stringResource(R.string.field_description_label)) },
+                        placeholder = { Text(stringResource(R.string.field_description_placeholder)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 3,
+                        maxLines = 5,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = textFieldColors
+                    )
+
+                    // Contact Info (Required)
+                    OutlinedTextField(
+                        value = contactInfo,
+                        onValueChange = {
+                            contactInfo = it
+                            if (contactError && it.isNotBlank()) contactError = false
+                        },
+                        label = { Text(stringResource(R.string.field_contact_label)) },
+                        placeholder = { Text(stringResource(R.string.field_contact_placeholder)) },
+                        supportingText = {
+                            if (contactError) {
+                                Text(stringResource(R.string.validation_contact_required))
+                            } else {
+                                Text(stringResource(R.string.field_contact_helper))
+                            }
+                        },
+                        isError = contactError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = textFieldColors
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Action Buttons: Save & Cancel
             Row(
@@ -313,15 +429,27 @@ fun AddBookScreen(
             ) {
                 OutlinedButton(
                     onClick = onBackClick,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                 ) {
-                    Text(stringResource(R.string.action_cancel))
+                    Text(
+                        text = stringResource(R.string.action_cancel),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
                 Button(
                     onClick = { validateAndSave() },
-                    modifier = Modifier.weight(1.5f)
+                    modifier = Modifier.weight(1.5f),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
                 ) {
-                    Text(stringResource(R.string.action_save_book))
+                    Text(
+                        text = stringResource(R.string.action_save_book),
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
 

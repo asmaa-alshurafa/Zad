@@ -1,5 +1,6 @@
 package com.example.zad.feature.bookdetails
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,11 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,10 +25,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SuggestionChip
-import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,22 +58,28 @@ fun BookDetailsScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = stringResource(R.string.book_details_title),
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back_navigation)
+                            contentDescription = stringResource(R.string.back_navigation),
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             )
         }
     ) { contentPadding ->
@@ -85,7 +94,7 @@ fun BookDetailsScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Info,
+                    imageVector = Icons.Outlined.Info,
                     contentDescription = null,
                     modifier = Modifier.size(56.dp),
                     tint = MaterialTheme.colorScheme.error
@@ -94,7 +103,8 @@ fun BookDetailsScreen(
                 Text(
                     text = stringResource(R.string.book_not_found_title),
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -104,7 +114,13 @@ fun BookDetailsScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(24.dp))
-                Button(onClick = onBackClick) {
+                Button(
+                    onClick = onBackClick,
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
                     Text(stringResource(R.string.action_back_home))
                 }
             }
@@ -115,16 +131,18 @@ fun BookDetailsScreen(
                     .fillMaxSize()
                     .padding(contentPadding)
                     .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
+                    .padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Header Card with Title and Badges
+                // Main Header Card: Title, Author, and Badges
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                        containerColor = MaterialTheme.colorScheme.surface
                     ),
-                    shape = MaterialTheme.shapes.large
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Column(
                         modifier = Modifier
@@ -136,7 +154,7 @@ fun BookDetailsScreen(
                             text = book.title,
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.primary
                         )
 
                         if (!book.author.isNullOrBlank()) {
@@ -147,56 +165,64 @@ fun BookDetailsScreen(
                             )
                         }
 
-                        // Badges: Type/Price & Condition
+                        // Badges: Price / Free & Condition
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Type / Price badge
-                            val priceText = when (book.listingType) {
-                                ListingType.SALE -> {
-                                    val price = book.price
-                                    if (price != null) {
-                                        if (price % 1.0 == 0.0) "${price.toInt()} ₪" else "$price ₪"
-                                    } else {
-                                        stringResource(R.string.filter_sale)
-                                    }
+                            val isSale = book.listingType == ListingType.SALE
+                            val priceLabel = if (isSale) {
+                                val price = book.price
+                                if (price != null) {
+                                    if (price % 1.0 == 0.0) "${price.toInt()} ₪" else "$price ₪"
+                                } else {
+                                    stringResource(R.string.filter_sale)
                                 }
-                                ListingType.DONATION -> stringResource(R.string.filter_donation)
+                            } else {
+                                stringResource(R.string.filter_donation)
                             }
-                            SuggestionChip(
-                                onClick = {},
-                                label = {
-                                    Text(
-                                        text = priceText,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                },
-                                colors = SuggestionChipDefaults.suggestionChipColors(
-                                    containerColor = if (book.listingType == ListingType.SALE) {
-                                        MaterialTheme.colorScheme.primaryContainer
-                                    } else {
-                                        MaterialTheme.colorScheme.tertiaryContainer
-                                    },
-                                    labelColor = if (book.listingType == ListingType.SALE) {
+
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = if (isSale) {
+                                    MaterialTheme.colorScheme.primaryContainer
+                                } else {
+                                    MaterialTheme.colorScheme.tertiaryContainer
+                                }
+                            ) {
+                                Text(
+                                    text = priceLabel,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isSale) {
                                         MaterialTheme.colorScheme.onPrimaryContainer
                                     } else {
                                         MaterialTheme.colorScheme.onTertiaryContainer
-                                    }
+                                    },
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                                 )
-                            )
+                            }
 
-                            // Condition badge
                             val conditionText = when (book.condition) {
                                 BookCondition.NEW -> stringResource(R.string.condition_new)
                                 BookCondition.VERY_GOOD -> stringResource(R.string.condition_very_good)
                                 BookCondition.GOOD -> stringResource(R.string.condition_good)
                                 BookCondition.ACCEPTABLE -> stringResource(R.string.condition_acceptable)
                             }
-                            SuggestionChip(
-                                onClick = {},
-                                label = { Text(conditionText) }
-                            )
+
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = MaterialTheme.colorScheme.background,
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                            ) {
+                                Text(
+                                    text = conditionText,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -204,18 +230,24 @@ fun BookDetailsScreen(
                 // Academic Information Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(18.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
                             text = "${stringResource(R.string.label_major)} ${book.major}",
                             style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         if (!book.courseName.isNullOrBlank()) {
                             Text(
@@ -231,12 +263,17 @@ fun BookDetailsScreen(
                 if (!book.description.isNullOrBlank()) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = MaterialTheme.shapes.medium
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .padding(18.dp),
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Text(
@@ -247,7 +284,8 @@ fun BookDetailsScreen(
                             )
                             Text(
                                 text = book.description,
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -257,9 +295,11 @@ fun BookDetailsScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
                     ),
-                    shape = MaterialTheme.shapes.large
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Column(
                         modifier = Modifier
@@ -269,9 +309,9 @@ fun BookDetailsScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.label_seller_contact),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
                             text = book.contactInfo,
@@ -282,7 +322,7 @@ fun BookDetailsScreen(
                         Text(
                             text = stringResource(R.string.contact_seller_hint),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f)
                         )
                     }
                 }

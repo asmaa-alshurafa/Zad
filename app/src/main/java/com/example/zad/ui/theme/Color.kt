@@ -2,10 +2,16 @@ package com.example.zad.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Navy Blue Palette Tokens
+val NavyPrimary = Color(0xFF183153)
+val NavyDark = Color(0xFF10243A)
+val BackgroundLight = Color(0xFFF7F9FC)
+val SurfaceWhite = Color(0xFFFFFFFF)
+val TextPrimary = Color(0xFF172B4D)
+val TextSecondary = Color(0xFF667085)
+val BorderColor = Color(0xFFE4E9F0)
+val NavyAccent = Color(0xFFEAF0F8)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Semantic Accents
+val GreenFree = Color(0xFF027A48)
+val GreenFreeContainer = Color(0xFFECFDF3)

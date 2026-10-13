@@ -1,16 +1,17 @@
 package com.example.zad.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SuggestionChip
-import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,7 +25,7 @@ import com.example.zad.data.model.BookCondition
 import com.example.zad.data.model.ListingType
 
 /**
- * Reusable card displaying summary information for a textbook listing.
+ * Modern, minimalist card displaying textbook listing summary.
  */
 @Composable
 fun BookCard(
@@ -39,8 +40,9 @@ fun BookCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = MaterialTheme.shapes.medium
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier
@@ -76,40 +78,39 @@ fun BookCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Price / Donation label
-                val priceLabel = when (book.listingType) {
-                    ListingType.SALE -> {
-                        val p = book.price
-                        if (p != null) {
-                            if (p % 1.0 == 0.0) "${p.toInt()} ₪" else "$p ₪"
-                        } else {
-                            stringResource(R.string.filter_sale)
-                        }
+                // Price / Free badge
+                val isSale = book.listingType == ListingType.SALE
+                val priceLabel = if (isSale) {
+                    val p = book.price
+                    if (p != null) {
+                        if (p % 1.0 == 0.0) "${p.toInt()} ₪" else "$p ₪"
+                    } else {
+                        stringResource(R.string.filter_sale)
                     }
-                    ListingType.DONATION -> stringResource(R.string.filter_donation)
+                } else {
+                    stringResource(R.string.filter_donation)
                 }
 
-                SuggestionChip(
-                    onClick = onClick,
-                    label = {
-                        Text(
-                            text = priceLabel,
-                            fontWeight = FontWeight.Bold
-                        )
-                    },
-                    colors = SuggestionChipDefaults.suggestionChipColors(
-                        containerColor = if (book.listingType == ListingType.SALE) {
-                            MaterialTheme.colorScheme.primaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.tertiaryContainer
-                        },
-                        labelColor = if (book.listingType == ListingType.SALE) {
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = if (isSale) {
+                        MaterialTheme.colorScheme.primaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.tertiaryContainer
+                    }
+                ) {
+                    Text(
+                        text = priceLabel,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isSale) {
                             MaterialTheme.colorScheme.onPrimaryContainer
                         } else {
                             MaterialTheme.colorScheme.onTertiaryContainer
-                        }
+                        },
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                     )
-                )
+                }
 
                 // Condition badge
                 val conditionLabel = when (book.condition) {
@@ -119,11 +120,19 @@ fun BookCard(
                     BookCondition.ACCEPTABLE -> stringResource(R.string.condition_acceptable)
                 }
 
-                Text(
-                    text = conditionLabel,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.secondary
-                )
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = MaterialTheme.colorScheme.background,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                ) {
+                    Text(
+                        text = conditionLabel,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
             }
         }
     }

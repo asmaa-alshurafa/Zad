@@ -1,5 +1,6 @@
 package com.example.zad.feature.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,28 +15,31 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -51,26 +55,12 @@ import com.example.zad.data.repository.InMemoryBookStore
 import com.example.zad.ui.components.BookCard
 import com.example.zad.ui.theme.ZadTheme
 
-/**
- * Filter options for book listings on the Home screen.
- */
 enum class ListingFilter {
     ALL,
     SALE,
     DONATION
 }
 
-/**
- * Home Screen for Zad (زاد).
- *
- * Displays the main discovery feed for university textbooks:
- * - Search by title, author, major, or course.
- * - Filter chips for listing type (All, Sale, Donation).
- * - Book listings using [BookCard] with navigation to details.
- * - Meaningful empty states for empty store vs no search results.
- * - Add Book floating action button.
- */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -82,7 +72,7 @@ fun HomeScreen(
 
     val allBooks = InMemoryBookStore.books
 
-    // Filtered list based on search and listing type filter
+    // Filtered list based on search query and listing type filter
     val filteredBooks = allBooks.filter { book ->
         val matchesFilter = when (selectedFilter) {
             ListingFilter.ALL -> true
@@ -102,16 +92,25 @@ fun HomeScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onAddBookClick,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 3.dp),
                 icon = {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = stringResource(R.string.add_book_fab_description)
                     )
                 },
-                text = { Text(text = stringResource(R.string.add_book_action)) }
+                text = {
+                    Text(
+                        text = stringResource(R.string.add_book_action),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             )
         }
     ) { contentPadding ->
@@ -119,46 +118,34 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header: App Title & Tagline
+            // Header: Brand & Purpose
             item {
-                Column(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, bottom = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
                     Text(
-                        text = stringResource(R.string.app_name_ar),
+                        text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = stringResource(R.string.app_tagline),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(R.string.app_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                }
-            }
-
-            // University Audience Card
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.university_audience),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    }
                 }
             }
 
@@ -169,12 +156,16 @@ fun HomeScreen(
                     onValueChange = { searchQuery = it },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = {
-                        Text(text = stringResource(R.string.search_books_placeholder))
+                        Text(
+                            text = stringResource(R.string.search_books_placeholder),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
-                            contentDescription = stringResource(R.string.search_books_placeholder)
+                            contentDescription = stringResource(R.string.search_books_placeholder),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
                     trailingIcon = {
@@ -182,13 +173,20 @@ fun HomeScreen(
                             IconButton(onClick = { searchQuery = "" }) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = stringResource(R.string.clear_search)
+                                    contentDescription = stringResource(R.string.clear_search),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
                     },
                     singleLine = true,
-                    shape = MaterialTheme.shapes.medium
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                    )
                 )
             }
 
@@ -203,17 +201,65 @@ fun HomeScreen(
                     FilterChip(
                         selected = selectedFilter == ListingFilter.ALL,
                         onClick = { selectedFilter = ListingFilter.ALL },
-                        label = { Text(stringResource(R.string.filter_all)) }
+                        label = {
+                            Text(
+                                text = stringResource(R.string.filter_all),
+                                fontWeight = if (selectedFilter == ListingFilter.ALL) FontWeight.Bold else FontWeight.Normal
+                            )
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = selectedFilter == ListingFilter.ALL,
+                            borderColor = MaterialTheme.colorScheme.outline,
+                            selectedBorderColor = MaterialTheme.colorScheme.primaryContainer
+                        )
                     )
                     FilterChip(
                         selected = selectedFilter == ListingFilter.SALE,
                         onClick = { selectedFilter = ListingFilter.SALE },
-                        label = { Text(stringResource(R.string.filter_sale)) }
+                        label = {
+                            Text(
+                                text = stringResource(R.string.filter_sale),
+                                fontWeight = if (selectedFilter == ListingFilter.SALE) FontWeight.Bold else FontWeight.Normal
+                            )
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = selectedFilter == ListingFilter.SALE,
+                            borderColor = MaterialTheme.colorScheme.outline,
+                            selectedBorderColor = MaterialTheme.colorScheme.primaryContainer
+                        )
                     )
                     FilterChip(
                         selected = selectedFilter == ListingFilter.DONATION,
                         onClick = { selectedFilter = ListingFilter.DONATION },
-                        label = { Text(stringResource(R.string.filter_donation)) }
+                        label = {
+                            Text(
+                                text = stringResource(R.string.filter_donation),
+                                fontWeight = if (selectedFilter == ListingFilter.DONATION) FontWeight.Bold else FontWeight.Normal
+                            )
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = selectedFilter == ListingFilter.DONATION,
+                            borderColor = MaterialTheme.colorScheme.outline,
+                            selectedBorderColor = MaterialTheme.colorScheme.tertiaryContainer
+                        )
                     )
                 }
             }
@@ -223,29 +269,33 @@ fun HomeScreen(
                 // Entire store is empty
                 item {
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            containerColor = MaterialTheme.colorScheme.surface
                         ),
-                        shape = MaterialTheme.shapes.large
+                        shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(24.dp),
+                                .padding(32.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Info,
+                                imageVector = Icons.Outlined.Info,
                                 contentDescription = null,
-                                modifier = Modifier.size(48.dp),
+                                modifier = Modifier.size(44.dp),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Text(
                                 text = stringResource(R.string.empty_listings_title),
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -255,15 +305,7 @@ fun HomeScreen(
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Button(onClick = onAddBookClick) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = null
-                                )
-                                Spacer(modifier = Modifier.size(8.dp))
-                                Text(text = stringResource(R.string.add_book_action))
-                            }
+
                         }
                     }
                 }
@@ -271,23 +313,29 @@ fun HomeScreen(
                 // Search or filter yielded 0 results
                 item {
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                            containerColor = MaterialTheme.colorScheme.surface
                         ),
-                        shape = MaterialTheme.shapes.medium
+                        shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(24.dp),
+                                .padding(32.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Text(
                                 text = stringResource(R.string.empty_search_title),
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = stringResource(R.string.empty_search_subtitle),
@@ -295,14 +343,20 @@ fun HomeScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(6.dp))
                             OutlinedButton(
                                 onClick = {
                                     searchQuery = ""
                                     selectedFilter = ListingFilter.ALL
-                                }
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                             ) {
-                                Text(stringResource(R.string.clear_search))
+                                Text(
+                                    text = stringResource(R.string.clear_search),
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
                             }
                         }
                     }
@@ -319,7 +373,7 @@ fun HomeScreen(
 
             // Bottom spacer for FAB clearance
             item {
-                Spacer(modifier = Modifier.height(64.dp))
+                Spacer(modifier = Modifier.height(72.dp))
             }
         }
     }
